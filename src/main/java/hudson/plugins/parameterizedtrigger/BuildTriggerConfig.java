@@ -106,7 +106,8 @@ public class BuildTriggerConfig implements Describable<BuildTriggerConfig> {
      * @param env Environment variables from which to expand project names; Might be {@code null}.
      */
 	public List<AbstractProject> getProjectList(EnvVars env) {
-        if(projectList == null) {
+         //caching is causing incorrect variables to be called on projects
+        //if(projectList == null) {
             projectList = new ArrayList<AbstractProject>();
 
             // expand variables if applicable
@@ -120,7 +121,7 @@ public class BuildTriggerConfig implements Describable<BuildTriggerConfig> {
             }
 
             projectList.addAll(Items.fromNameList(projectNames.toString(), AbstractProject.class));
-        }
+        //}
 		return projectList;
 	}
 
