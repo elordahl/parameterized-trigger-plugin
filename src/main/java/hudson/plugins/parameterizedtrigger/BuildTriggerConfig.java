@@ -52,10 +52,6 @@ public class BuildTriggerConfig implements Describable<BuildTriggerConfig> {
 	private final ResultCondition condition;
 	private boolean triggerWithNoParameters;
 
-    // the list of projects to build is computed in getProjectList() ; this method
-    // is actually invoked twice (when in a build step), so let's cache its result
-    private transient List<AbstractProject> projectList;
-
     public BuildTriggerConfig(String projects, ResultCondition condition,
             boolean triggerWithNoParameters, List<AbstractBuildParameterFactory> configFactories, List<AbstractBuildParameters> configs) {
         this.projects = projects;
@@ -106,22 +102,21 @@ public class BuildTriggerConfig implements Describable<BuildTriggerConfig> {
      * @param env Environment variables from which to expand project names; Might be {@code null}.
      */
 	public List<AbstractProject> getProjectList(EnvVars env) {
-         //caching is causing incorrect variables to be called on projects
-        //if(projectList == null) {
-            projectList = new ArrayList<AbstractProject>();
 
-            // expand variables if applicable
-            StringBuilder projectNames = new StringBuilder();
-            StringTokenizer tokens = new StringTokenizer(projects,",");
-            while(tokens.hasMoreTokens()) {
-                if(projectNames.length() > 0) {
-                    projectNames.append(',');
-                }
-                projectNames.append(env != null ? env.expand(tokens.nextToken().trim()) : tokens.nextToken().trim());
+		List<AbstractProject> projectList = new ArrayList<AbstractProject>();
+
+        // expand variables if applicable
+        StringBuilder projectNames = new StringBuilder();
+        StringTokenizer tokens = new StringTokenizer(projects,",");
+        while(tokens.hasMoreTokens()) {
+            if(projectNames.length() > 0) {
+                projectNames.append(',');
             }
+            projectNames.append(env != null ? env.expand(tokens.nextToken().trim()) : tokens.nextToken().trim());
+        }
 
-            projectList.addAll(Items.fromNameList(projectNames.toString(), AbstractProject.class));
-        //}
+        projectList.addAll(Items.fromNameList(projectNames.toString(), AbstractProject.class));
+
 		return projectList;
 	}
 
